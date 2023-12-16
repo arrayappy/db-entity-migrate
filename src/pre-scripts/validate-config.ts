@@ -1,5 +1,5 @@
-import { z, ZodObject } from 'zod';
-import { Config } from '../types/config';
+import { z } from 'zod';
+import { config } from '../config';
 
 const sourceConfigSchema = z.object({
   client: z.string(),
@@ -33,33 +33,39 @@ const migrationConfigSchema = z.object({
   }),
 });
 
-const fieldMappingSchema = z.object({
-  fieldMapping: z.record(
+const fieldMappingSchema= z.object({
+  mapping: z.record(
     z.object({
       to: z.string(),
-      default: z.nullable(z.unknown()),
-      allowNull: z.boolean(),
-      transform: z.function(z.unknown(), z.unknown()),
+      default: z.optional(z.nullable(z.unknown())),
+      allowNull: z.optional(z.boolean()),
+      transform: z.optional(z.function()),
     })
   ),
 });
 
 const validationConfigSchema = z.object({
-  library: z.literal('zod'),
-  validate: z.function(z.unknown(), z.unknown()),
-  options: z.object(),
+  zodValidator: z.function(),
+  zodOptions: z.object({}),
+  logFile: z.string()
 });
 
-const configSchema: ZodObject<Config> = z.object({
-  dbConfig: z.object({
+const configSchema = z.object({
+  db: z.object({
     source: sourceConfigSchema,
     destination: destinationConfigSchema,
   }),
-  migrationConfig: migrationConfigSchema,
-  fieldMappingConfig: fieldMappingSchema,
-  validationConfig: validationConfigSchema,
+  migration: migrationConfigSchema,
+  fieldMapping: fieldMappingSchema,
+  validation: validationConfigSchema,
 });
 
-export const validateConfig = (config: Config) => {
-  configSchema.parse(config);
-};
+const validateConfig = (config: any) => {
+  const res = configSchema.safeParse(config);
+  console.log(JSON.stringify(res)) // format this errors
+}
+// validateConfig(config)
+
+export {
+  validateConfig
+}

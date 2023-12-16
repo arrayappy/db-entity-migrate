@@ -1,4 +1,4 @@
-interface Connection {
+interface ConnectionBase {
   host: string,
   port: number,
   user: string,
@@ -6,16 +6,18 @@ interface Connection {
   database?: string,
 }
 
+type Connection = ConnectionBase | string;
+
 interface DbClientConfig {
-  client: 'mysql' | 'postgresql' | 'mongodb',
+  client: 'mysql2' | 'postgresql' | 'mongodb',
   connection: string | Connection,
   database: string,
   table?: string,
   collection?: string;
-  query?: {[key: string]: string| number} | string,
-  sort?: any,
+  query?: { [key: string]: string| number },
+  sort?: { [key: string]: string | number },
   createTableRawSql?: string,
-};
+}
 
 interface DbConfig {
   source: DbClientConfig,
@@ -36,12 +38,12 @@ interface MigrationConfig {
 }
 
 interface FieldMappingConfig {
-  fieldMapping: {
+  mapping: {
     [key: string]: {
       to: string,
       default?: any,
       allowNull?: boolean,
-      transform?: () => void,
+      transform?: (field:any) => any,
     }
   },
   strictMapping?: boolean,
@@ -49,25 +51,14 @@ interface FieldMappingConfig {
 }
 
 interface ValidationConfig {
-  library: "zod",
-  validate: () => any,
-  options?: any,
-  validationLogFile?: string,
+  zodValidator: () => any,
+  zodOptions?: any,
+  logFile?: string,
 }
 
-interface Config {
-  dbConfig: DbConfig,
-  migrationConfig: MigrationConfig,
-  fieldMappingConfig: FieldMappingConfig,
-  validationConfig: ValidationConfig,
-}
-
-export {
-  Connection,
-  DbClientConfig,
-  DbConfig,
-  MigrationConfig,
-  FieldMappingConfig,
-  ValidationConfig,
-  Config
+export interface Config {
+  db: DbConfig,
+  migration: MigrationConfig,
+  fieldMapping: FieldMappingConfig,
+  validation: ValidationConfig,
 }

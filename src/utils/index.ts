@@ -1,10 +1,14 @@
-const fs = require('fs');
-
-const readFile = async(filePath: string) =>  {
-  const data = await fs.readFileSync(filePath);
-  return JSON.parse(data);
-}
-
-export {
-  readFile
-}
+const dependencyMap: Record<string, string> = {
+    "mongodb": "mongodb",
+    "mysql": "mysql2",
+    "knex": "knex"
+  }
+  
+  const databasesWithKnex: string[] = [
+    "mysql"
+  ];
+  
+  export {
+    dependencyMap,
+    databasesWithKnex,
+  }
