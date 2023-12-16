@@ -1,29 +1,20 @@
-import * as sqlDatabase from "./sql-dbs";
-import * as mongodb from "./mongodb";
+import KnexDatabase from "./sql-dbs";
+import MongoDb from "./mongodb";
 
-type DatabaseName = "mysql" | "postgresql" |"mongodb";
+import { DbClient, DbClientName } from '../../../types/database';
 
-interface Database {
-  connect(client: string, connectionInfo: any): Promise<any>;
-  close(connection: any): Promise<void>;
-  batchQuery(connection: any, database: string, entity: string, query: any, offset: number, limit: number): Promise<any[]>;
-  batchWrite(connection: any, database: string, entity: string, docs: any[]): Promise<void>;
-}
-
-const getDatabase = (databaseName: DatabaseName): Database => {
-  let database: Database;
-  switch (databaseName) {
-    case 'mysql':
+const getDatabase = (client: DbClientName): DbClient => {
+  switch (client) {
+    case 'mysql2':
     case 'postgresql':
-      database = sqlDatabase;
-      break;
+      return new KnexDatabase();
     case 'mongodb':
-      database = mongodb;
-      break;
+      return new MongoDb();
     default:
-      throw new Error(`Unsupported database: ${databaseName}`);
+      throw new Error(`Unsupported database: ${client}`);
   }
-  return database;
 };
 
-export default getDatabase;
+export {
+  getDatabase
+};

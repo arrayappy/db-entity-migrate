@@ -1,15 +1,15 @@
 import _ from 'lodash';
 
-export function transformDoc(source: any, fieldMappingConfig: any): Promise<any> {
-  const { fieldMapping, strictMapping } = fieldMappingConfig;
+export function transformDoc(source: any, fieldMapping: any): Promise<any> {
+  const { mapping, strictMapping } = fieldMapping;
   const destination = strictMapping ? {} : _.cloneDeep(source);
 
-  for (const sourceKey in fieldMapping) {
-    const mapping = fieldMapping[sourceKey];
-    const destinationKey = mapping.to;
-    const defaultValue = mapping.default;
-    const allowNull = mapping.allowNull;
-    const transform = mapping.transform;
+  for (const sourceKey in mapping) {
+    const mappingValue = mapping[sourceKey];
+    const destinationKey = mappingValue.to;
+    const defaultValue = mappingValue.default;
+    const allowNull = mappingValue.allowNull;
+    const transform = mappingValue.transform;
 
     const sourceValue = _.get(source, sourceKey);
 

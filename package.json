@@ -6,11 +6,12 @@
   "scripts": {
     "start": "tsc && node lib/index.js",
     "test": "tsc && node lib/ts.js",
+    "watch": "tsc -watch",
     "build": "tsc",
     "link": "tsc && npm link"
   },
   "engines": {
-    "node": ">=8"
+    "node": ">=12"
   },
   "keywords": [],
   "author": "",
@@ -18,12 +19,16 @@
   "devDependencies": {
     "@types/lodash": "^4.14.202",
     "@types/node": "^20.10.0",
-    "mysql2": "^3.6.5",
     "typescript": "^5.3.2"
   },
   "dependencies": {
-    "knex": "^3.0.1",
-    "mongodb": "^6.3.0",
+    "lodash": "^4.17.21",
+    "undefined": "^0.1.0",
     "zod": "^3.22.4"
+  },
+  "peerDependencies": {
+    "knex": "^3.1.0",
+    "mongodb": "^6.3.0",
+    "mysql2": "^3.6.5"
   }
 }
