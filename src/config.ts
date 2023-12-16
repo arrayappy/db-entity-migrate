@@ -4,7 +4,7 @@ export const config: Config = {
   db: {
     source: {
       client: 'mongodb',
-      connection: 'mongodb+srv://admin:admin@cluster0.qfuvv.mongodb.net/?retryWrites=true&w=majority',
+      connection: 'mongodb://localhost:27017',
       database: 'test',
       collection: 'test',
     },
