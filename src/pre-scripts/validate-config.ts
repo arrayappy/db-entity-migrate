@@ -1,71 +1,74 @@
 import { z } from 'zod';
 import { config } from '../config';
 
-const sourceConfigSchema = z.object({
-  client: z.string(),
-  connection: z.string(),
-  database: z.string(),
-  collection: z.string(),
-});
+const nullableOptional = (value: any) => z.nullable(z.optional(value));
 
-const destinationConfigSchema = z.object({
-  client: z.string(),
-  connection: z.object({
-    host: z.string(),
-    port: z.number(),
-    user: z.string(),
-    password: z.string(),
-  }),
-  database: z.string(),
-  table: z.string(),
-  createTableRawSql: z.string(),
+const dbConfigSchema = z.object({
+  client: z.enum(["mysql", "postgresql", "mongodb"]),
+  database: z.optional(z.string()),
+  connection: z.optional(z.any()),
+  table: z.optional(z.string()),
+  collection: z.optional(z.string()),
+  createTableRawSql: nullableOptional(z.string()),
 });
 
 const migrationConfigSchema = z.object({
   dryRun: z.boolean(),
-  rollbackOnFailure: z.boolean(),
   batchSize: z.object({
     read: z.number(),
     write: z.number(),
   }),
   log: z.object({
     level: z.string(),
+    filePath: nullableOptional(z.string())
   }),
 });
 
-const fieldMappingSchema= z.object({
-  mapping: z.record(
+const fieldMappingSchema= nullableOptional(z.object({
+  mapping: nullableOptional(z.record(
     z.object({
       to: z.string(),
-      default: z.optional(z.nullable(z.unknown())),
+      default: nullableOptional(z.unknown()),
       allowNull: z.optional(z.boolean()),
       transform: z.optional(z.function()),
     })
-  ),
-});
+  )),
+  strictMapping: z.optional(z.boolean()),
+  idMapping: z.optional(z.record(z.string()))
+}));
 
-const validationConfigSchema = z.object({
-  zodValidator: z.function(),
-  zodOptions: z.object({}),
-  logFile: z.string()
-});
+const validationConfigSchema = nullableOptional(z.object({
+  zodValidator: nullableOptional(z.object({})),
+  zodParserType: z.enum(['safeParse', 'parse']),
+  logFile: nullableOptional(z.string())
+}));
 
 const configSchema = z.object({
   db: z.object({
-    source: sourceConfigSchema,
-    destination: destinationConfigSchema,
+    source: dbConfigSchema,
+    destination: dbConfigSchema,
   }),
   migration: migrationConfigSchema,
   fieldMapping: fieldMappingSchema,
   validation: validationConfigSchema,
 });
 
-const validateConfig = (config: any) => {
-  const res = configSchema.safeParse(config);
-  console.log(JSON.stringify(res)) // format this errors
-}
-// validateConfig(config)
+const isValidConfig = (config: any): boolean => {
+  const result = configSchema.safeParse(config);
+
+  if (!result.success) {
+    result.error.issues.forEach((issue: any) => {
+      const path = issue.path.join('.');
+      console.error(`Error in config at ${path}: ${issue.message}`);
+    });
+    console.error('Please fix the config file and run the program again!');
+    return false;
+  }
+  return true;
+};
+
+isValidConfig(config)
 
 export {
-  validateConfig
+  isValidConfig
 }

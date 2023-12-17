@@ -1,20 +1,11 @@
 import { MongoClient, Db, Collection } from "mongodb";
-import { DbClient, DbClientName } from '../../../types/database';
-import { Connection } from '../../../types/config';
+import { DbClient, ClientName } from '../../../types';
 
 class MongoDb implements DbClient {
   private connection!: MongoClient;
   private db!: Db;
   
-  // constructor(client: DbClientName, connectionInfo: Connection, database: string) {
-  //   if (typeof connectionInfo === "string") {
-  //     this.connection = new MongoClient(connectionInfo);
-  //     this.connection.connect().then(() => {
-  //       this.db = this.connection.db(database);
-  //     });
-  //   }
-  // }
-  async connect(client: DbClientName, connectionInfo: Connection, database: string): Promise<void> {
+  async connect(client: ClientName, connectionInfo: string, database: string): Promise<void> {
     if (typeof connectionInfo === "string") {
       this.connection = new MongoClient(connectionInfo);
       await this.connection.connect();
@@ -28,18 +19,16 @@ class MongoDb implements DbClient {
     }
   }
 
-  async batchQuery(database: string, collection: string, query: any, sort: any, offset: number, limit: number): Promise<any[]> {
-    console.log('mongo query')
+  async batchQuery(database: string, collection: string, offset: number, limit: number): Promise<any[]> {
     if (!this.db) {
       throw new Error('Not connected to the database');
     }
-    console.log('mongo q2')
 
     const coll: Collection = this.db.collection(collection);
     return await coll.find({}).skip(offset).limit(limit).toArray();
   }
 
-  async batchWrite(database: string, collection: string, docs: any[]): Promise<void> {
+  async batchWrite(database: string, collection: string, docs: any[]): Promise<any> {
     if (!this.db) {
       throw new Error('Not connected to the database');
     }
@@ -47,7 +36,7 @@ class MongoDb implements DbClient {
 
     const coll: Collection = this.db.collection(collection);
     
-    await coll.insertMany(docs);
+    return await coll.insertMany(docs);
   }
 
   async getDocumentCount(database: string, collection: string, queryOptions?: any): Promise<number> {
@@ -60,7 +49,7 @@ class MongoDb implements DbClient {
     return await coll.countDocuments(queryOptions);
   }
 
-  async createEntity(database: string, collection: string): Promise<void> {
+  async createEntity(database: string, collection: string): Promise<any> {
     if (!this.db) {
       throw new Error('Not connected to the database');
     }

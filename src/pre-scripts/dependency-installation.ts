@@ -19,44 +19,39 @@ const dependencyInstalled = async (dependency: string, globalInstall: boolean): 
 };
 
 const installDependency = async (dependency: string, globalInstall: boolean): Promise<void> => {
-  console.log({dependency})
-  const alreadyInstalled = await dependencyInstalled(dependency, globalInstall);
+  const installCommand = globalInstall ? 'install -g' : 'install';
+  const process = spawn('npm', [installCommand, dependencyMap[dependency]]);
 
-  if (!alreadyInstalled) {
-    const installCommand = globalInstall ? 'install -g' : 'install';
-    const process = spawn('npm', [installCommand, dependencyMap[dependency]]);
-
-    return new Promise(async (resolve, reject) => {
-      process.on('close', async (code) => {
-        if (code === 0) {
-          console.log("Successfully installed", dependency, await dependencyInstalled(dependency, globalInstall));
-          resolve();
-        } else {
-          const errorMessage = `Error installing ${dependency} dependency. Exit code: ${code}`;
-          console.error(errorMessage);
-          reject(new Error(errorMessage));
-        }
-      });
+  return new Promise(async (resolve, reject) => {
+    process.on('close', async (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        const errorMessage = `Error installing ${dependency} dependency. Exit code: ${code}`;
+        console.error(errorMessage);
+        reject(new Error(errorMessage));
+      }
     });
-  } else {
-    return Promise.resolve();
-  }
+  });
 };
 
 const installDependencies = async (dependencyList: string[], globalInstall: boolean): Promise<void> => {
   if (dependencyList.some((dependency) => databasesWithKnex.includes(dependency))) {
     dependencyList.push('knex');
   }
-  console.log({dependencyList})
   const alreadyInstalledPromises = dependencyList.map((dependency) => dependencyInstalled(dependency, globalInstall));
   const alreadyInstalledResults = await Promise.all(alreadyInstalledPromises);
 
-  console.log({alreadyInstalledResults})
-  // If any library is not installed, then only move forward with installations
-  if (!alreadyInstalledResults.every(Boolean)) {
-    const installDependencyPromises = dependencyList.map((dependency) => installDependency(dependency, globalInstall));
+  const dependenciesToInstall = dependencyList.filter((_, index) => !alreadyInstalledResults[index]);
+
+  if (dependenciesToInstall.length > 0) {
+    console.log("Installing dependencies");
+    const installDependencyPromises = dependenciesToInstall.map((dependency) =>
+      installDependency(dependency, globalInstall)
+    );
     await Promise.all(installDependencyPromises);
   }
+  console.log("Dependencies installed");
 };
 
 export { installDependencies };
