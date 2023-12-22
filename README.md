@@ -2,7 +2,7 @@
 
 ## Overview
 
-`db-entity-migrate` is a cross database migration library that supports seamless data migration between different databases supporting both sql and nosql databases.
+`db-entity-migrate` is a cross database table or collection migration library that supports seamless data migration between different databases supporting both sql and nosql databases.
 
 ## Features
 
@@ -36,7 +36,7 @@ npm install db-entity-migrate
 
 - Run your migration script.
 
-```
+```javascript
 const { migrate } = require('db-entity-migrate');
 const config = require('./path-to-your-config-file');
 
@@ -48,7 +48,7 @@ migrate(config);
 
 ### Sample Config
 
-```
+```javascript
 // config.ts
 
 import { Config } from "db-entity-migrate";
