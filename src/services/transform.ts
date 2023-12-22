@@ -1,8 +1,13 @@
+import { FieldMappingInterface } from '../../types'
+import { databasesWithKnex } from '../utils'
 import _ from 'lodash';
+// import get from 'lodash/get';
+// import set from 'lodash/set';
+// import cloneDeep from 'lodash/cloneDeep';
 
-export function transformDoc(source: any, fieldMapping: any): Promise<any> {
+export function transformDoc(source: any, fieldMapping: FieldMappingInterface, destinationDatabase: string): any {
   const { mapping, strictMapping } = fieldMapping;
-  const destination = strictMapping ? {} : _.cloneDeep(source);
+  const destination = databasesWithKnex.includes(destinationDatabase) || strictMapping ? {} : _.cloneDeep(source);
 
   for (const sourceKey in mapping) {
     const mappingValue = mapping[sourceKey];

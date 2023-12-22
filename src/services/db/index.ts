@@ -1,11 +1,11 @@
 import KnexDatabase from "./sql-dbs";
 import MongoDb from "./mongodb";
 
-import { DbClient, DbClientName } from '../../../types/database';
+import { DbClient, ClientName } from '../../../types';
 
-const getDatabase = (client: DbClientName): DbClient => {
+const getDatabase = (client: ClientName): DbClient => {
   switch (client) {
-    case 'mysql2':
+    case 'mysql':
     case 'postgresql':
       return new KnexDatabase();
     case 'mongodb':

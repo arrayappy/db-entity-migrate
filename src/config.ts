@@ -1,4 +1,5 @@
-import { Config } from "../types/config";
+import { Config } from "../types";
+import { z } from 'zod';
 
 export const config: Config = {
   db: {
@@ -9,7 +10,7 @@ export const config: Config = {
       collection: 'test',
     },
     destination: {
-      client: 'mysql2',
+      client: 'mysql',
       connection: {
         host: '127.0.0.1',
         port: 3306,
@@ -23,42 +24,36 @@ export const config: Config = {
   },
 
   migration: {
-    dryRun: false,
-    rollbackOnFailure: true,
+    log: {
+      level: 'info',
+      filePath: 'dbResult.json',
+    },
     batchSize: {
       read: 4,
       write: 2,
     },
-    log: {
-      level: 'info',
-      // file: 'migration.log',
-    },
+    dryRun: false,
   },
 
   fieldMapping: {
     mapping: {
       _id: { 
         to: "id", 
-        transform: (field: any) => field.toString(),
+        transform: (value: any) => value.toString(),
       },
       name: { to: 'name' },
       age: { to: 'age' },
       createdAt: { to: "createdAt" }
     },
     strictMapping: true,
-    // idMapping: { 
-    //   // Example: { id: '_id' }
-    // }, // can we achive without using idMapping
+    idMapping: {
+      id: '_id' // null for mongo if they want system id, example mongo
+    },
   },
   
   validation: {
-    zodValidator: () => {},
-    zodOptions: {},
-    logFile: 'validation'
+    zodValidator: z.object({}),
+    zodParserType: 'safeParse',
+    logPath: 'validation.json'
   },
 };
-
-
-// Make sure that default values or omitted configurations won't lead to unexpected behavior. 
-// For instance, if validation or fieldMapping is omitted, ensure the migration
-//  still works with sensible defaults or fails with an informative message.
