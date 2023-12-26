@@ -1,10 +1,10 @@
 import { z } from 'zod';
-import { config } from '../config';
+import { Config } from '../../types';
 
 const nullableOptional = (value: any) => z.nullable(z.optional(value));
 
 const dbConfigSchema = z.object({
-  client: z.enum(["mysql", "postgresql", "mongodb"]),
+  client: z.enum(["mongodb", "firestore", "mysql", "postgres", "sqlite3", "oracledb"]),
   database: z.optional(z.string()),
   connection: z.optional(z.any()),
   table: z.optional(z.string()),
@@ -34,7 +34,7 @@ const fieldMappingSchema= nullableOptional(z.object({
     })
   )),
   strictMapping: z.optional(z.boolean()),
-  idMapping: z.optional(z.record(z.string()))
+  idMapping: z.optional(z.string())
 }));
 
 const validationConfigSchema = nullableOptional(z.object({
@@ -53,7 +53,7 @@ const configSchema = z.object({
   validation: validationConfigSchema,
 });
 
-const isValidConfig = (config: any): boolean => {
+const isValidConfig = (config: Config): boolean => {
   const result = configSchema.safeParse(config);
 
   if (!result.success) {
@@ -64,10 +64,14 @@ const isValidConfig = (config: any): boolean => {
     console.error('Please fix the config file and run the program again!');
     return false;
   }
+
+  if(config.migration?.batchSize?.read < config.migration?.batchSize?.write) {
+    console.error("Batch write size must be less than read size");
+    return false;
+  }
+
   return true;
 };
-
-isValidConfig(config)
 
 export {
   isValidConfig

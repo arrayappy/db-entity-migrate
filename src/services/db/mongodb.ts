@@ -28,25 +28,32 @@ class MongoDb implements DbClient {
     return await coll.find({}).skip(offset).limit(limit).toArray();
   }
 
-  async batchWrite(database: string, collection: string, docs: any[]): Promise<any> {
+  async batchWrite(database: string, collection: string, docs: any[], idField: string | undefined): Promise<any> {
     if (!this.db) {
       throw new Error('Not connected to the database');
     }
-    console.log('db already created')
-
-    const coll: Collection = this.db.collection(collection);
-    
+  
+    if (idField) {
+      docs = docs.map((doc) => {
+        if (doc.hasOwnProperty(idField)) {
+          return { ...doc, _id: doc[idField] }; 
+        }
+        return doc;
+      });
+    }
+  
+    const coll = this.db.collection(collection);
     return await coll.insertMany(docs);
   }
-
-  async getDocumentCount(database: string, collection: string, queryOptions?: any): Promise<number> {
+  
+  async getDocumentCount(database: string, collection: string): Promise<number> {
     if (!this.db) {
       throw new Error('Not connected to the database');
     }
 
     const coll: Collection = this.db.collection(collection);
 
-    return await coll.countDocuments(queryOptions);
+    return await coll.countDocuments({});
   }
 
   async createEntity(database: string, collection: string): Promise<any> {

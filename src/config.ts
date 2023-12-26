@@ -19,41 +19,48 @@ export const config: Config = {
       },
       database: 'test',
       table: 'test',
-      createTableRawSql: "CREATE TABLE tm (id INT, name VARCHAR(255));",
+      createTableRawSql: `CREATE TABLE test2 (
+        id VARCHAR(24) NOT NULL PRIMARY KEY,
+        name VARCHAR(255),
+        age INT,
+        createdAt TIMESTAMP
+      );`,
     },
   },
 
   migration: {
     log: {
       level: 'info',
-      filePath: 'dbResult.json',
+      filePath: 'migration/migration_log.json',
     },
     batchSize: {
-      read: 4,
-      write: 2,
+      read: 500,
+      write: 500,
     },
-    dryRun: false,
+    dryRun: true,
   },
 
   fieldMapping: {
     mapping: {
       _id: { 
-        to: "id", 
-        transform: (value: any) => value.toString(),
+        to: "id",
+        transform: (o) => o._id.toString()
       },
-      name: { to: 'name' },
+      name: { 
+        to: 'name',
+        allowNull: false,
+        default: ''
+      },
       age: { to: 'age' },
       createdAt: { to: "createdAt" }
     },
+    idField: 'id',
     strictMapping: true,
-    idMapping: {
-      id: '_id' // null for mongo if they want system id, example mongo
-    },
   },
   
   validation: {
     zodValidator: z.object({}),
     zodParserType: 'safeParse',
-    logPath: 'validation.json'
+    logPath: 'migration/validation_log.json'
   },
 };
