@@ -1,13 +1,12 @@
 {
   "name": "db-entity-migrate",
-  "version": "1.0.0",
+  "version": "0.1.1-alpha.0",
   "description": "",
-  "main": "lib/index.js",
+  "main": "lib/run.js",
   "scripts": {
-    "start": "tsc && node lib/index.js",
-    "test": "tsc && node lib/ts.js",
-    "watch": "tsc -watch",
+    "start": "tsc && node lib/run.js",
     "build": "tsc",
+    "watch": "tsc -watch",
     "link": "tsc && npm link"
   },
   "engines": {
@@ -23,12 +22,15 @@
   },
   "dependencies": {
     "lodash": "^4.17.21",
-    "undefined": "^0.1.0",
     "zod": "^3.22.4"
   },
   "peerDependencies": {
+    "firebase-admin": "^12.0.0",
     "knex": "^3.1.0",
     "mongodb": "^6.3.0",
-    "mysql2": "^3.6.5"
+    "mysql2": "^3.6.5",
+    "oracledb": "^6.3.0",
+    "pg": "^8.11.3",
+    "sqlite3": "^5.1.6"
   }
 }

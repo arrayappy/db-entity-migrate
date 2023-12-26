@@ -1,8 +1,13 @@
 import { Knex } from 'knex/types';
 import { AnyZodObject } from 'zod';
 
-type Connection = string | Knex.StaticConnectionConfig;
-type ClientName = "mysql" | "postgresql" |"mongodb";
+type ClientName = "mongodb" | "firestore" | "mysql" | "postgres" | "sqlite3" | "oracledb" ;
+
+interface FirestoreConnection {
+  serviceKeyPath: string,
+  databaseURL: string
+}
+type Connection = string | Knex.StaticConnectionConfig | FirestoreConnection;
 
 interface DbClientInterface {
   client: ClientName,
@@ -39,8 +44,8 @@ interface FieldMappingInterface {
       transform?: (value: any) => any,
     }
   },
+  idField?: string,
   strictMapping?: boolean,
-  idMapping?: { [key: string]: string };
 }
 
 interface ValidationInterface {
@@ -57,11 +62,11 @@ interface Config {
 }
 
 interface DbClient {
-  connect(client: ClientName, connection: Connection, database?: string): Promise<any>, // todo complete
+  connect(client: ClientName, connection: Connection, database?: string): Promise<any>, 
   close(): Promise<any>;
   batchQuery(database: string | undefined, entity: string, offset: number, limit: number): Promise<any[]>;
-  batchWrite(database: string | undefined, entity: string, docs: any[]): Promise<any>;
+  batchWrite(database: string | undefined, entity: string, docs: any[], idField: string | undefined): Promise<any>;
   getDocumentCount(database: string | undefined, entity: string): Promise<number>;
-  createEntity(database: string, entity: string, createTableRawSql?: string): Promise<boolean>;
-  dropEntity(database: string, entity: string): Promise<any>;
+  createEntity(database: string | undefined, entity: string, createTableRawSql?: string): Promise<boolean>;
+  dropEntity(database: string | undefined, entity: string): Promise<any>;
 }

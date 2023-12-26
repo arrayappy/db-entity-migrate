@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import * as path from 'path';
 import * as stream from 'stream';
 
 class LogStream extends stream.Writable {
@@ -6,7 +7,13 @@ class LogStream extends stream.Writable {
 
   constructor(private filePath: string) {
     super();
-    this.fileStream = fs.createWriteStream(this.filePath, { flags: 'a' });
+
+    // Ensure the directory exists
+    const directoryPath = path.dirname(filePath);
+    this.createDirectoryIfNotExists(directoryPath);
+
+    // Update the file path to include the provided file name
+    this.fileStream = fs.createWriteStream(filePath, { flags: 'a' });
     this.fileStream.write('[');
   }
 
@@ -59,8 +66,18 @@ class LogStream extends stream.Writable {
       }
     }
 
-    this.fileStream.write(jsonStringArray); 
+    this.fileStream.write(jsonStringArray);
     this.fileStream.end(']');
+  }
+
+  /**
+   * Creates the directory if it does not exist.
+   * @param directoryPath - The directory path.
+   */
+  private createDirectoryIfNotExists(directoryPath: string): void {
+    if (!fs.existsSync(directoryPath)) {
+      fs.mkdirSync(directoryPath, { recursive: true });
+    }
   }
 }
 

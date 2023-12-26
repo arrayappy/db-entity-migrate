@@ -1,11 +1,11 @@
 import knex, { Knex } from 'knex';
-import { DbClient, ClientName, Connection } from '../../../types';
+import { DbClient, ClientName } from '../../../types';
 import { dependencyMap } from '../../utils';
 
 class KnexDatabase implements DbClient {
   private knexInstance!: Knex;
 
-  async connect (client: ClientName, connection: Connection, database: string) {
+  async connect (client: ClientName, connection: Knex.StaticConnectionConfig, database: string) {
     this.knexInstance = knex({
       client: dependencyMap[client],
       connection
@@ -20,21 +20,25 @@ class KnexDatabase implements DbClient {
     return this.knexInstance.select('*').from(`${database}.${table}`).offset(offset).limit(limit);
   }
 
-  async batchWrite(database: string, table: string, rows: any[]): Promise<any> {
+  async batchWrite(database: string, table: string, rows: any[], idField: string | undefined): Promise<any> {
     return await this.knexInstance.withSchema(database).table(table).insert(rows);
   }
 
-  async getDocumentCount(database: string, table: string, queryOptions?: any): Promise<number> {
+  async getDocumentCount(database: string, table: string): Promise<number> {
     const result = await this.knexInstance
       .from(`${database}.${table}`)
-      .where(queryOptions || {})
+      .where({})
       .count({ count: '*' });
 
     return parseInt(result[0]?.count, 10) || 0;
   }
 
   async createEntity(database: string, table: string, createTableRawSql: string): Promise<any> {
-    await this.knexInstance.raw(createTableRawSql);
+    return this.knexInstance.transaction(async (trx) => {
+      await trx.raw(`CREATE DATABASE IF NOT EXISTS ${database}`);
+      await trx.raw(`USE ${database}`);
+      await trx.raw(createTableRawSql);
+    });
   }
 
   async dropEntity(database: string, table: string): Promise<any> {
