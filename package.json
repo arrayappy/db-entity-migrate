@@ -1,20 +1,26 @@
 {
   "name": "db-entity-migrate",
-  "version": "0.1.1-alpha.0",
-  "description": "",
-  "main": "lib/run.js",
+  "version": "0.1.1-beta.0",
+  "description": "Database Entity Migration Tool",
+  "main": "lib/index.js",
   "scripts": {
     "start": "tsc && node lib/run.js",
     "build": "tsc",
     "watch": "tsc -watch",
-    "link": "tsc && npm link"
+    "link": "tsc && npm link",
+    "clean": "rimraf lib"
   },
   "engines": {
     "node": ">=12"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["migration", "database", "table", "collection", "sql", "nosql"],
+  "author": "Appala Naidu Gadu",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arrayappy/db-entity-migrate.git"
+  },
+  "homepage": "https://github.com/arrayappy/db-entity-migrate#readme",
   "devDependencies": {
     "@types/lodash": "^4.14.202",
     "@types/node": "^20.10.0",
